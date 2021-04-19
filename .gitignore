@@ -14,3 +14,4 @@ build/package.json
 build/readme.md
 build/snowpack.config.js
 build/tsconfig.json
+/snowpack.config.js
