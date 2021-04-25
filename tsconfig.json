@@ -9,6 +9,7 @@
     "sourceMap": true, // Generates corresponding '.map' file
 
     // Strict Type-Checking Options
+    "allowJs": true,
     "strict": true, // Enable all strict type-checking options
     "noImplicitAny": true, // Raise error on expressions and declarations with an implied 'any' type
     "noImplicitThis": true, // Raise error on 'this' expressions with an implied 'any' type
