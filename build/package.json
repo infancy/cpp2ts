@@ -1,0 +1,42 @@
+{
+  "name": "cpp2ts",
+  "version": "0.0.1",
+  "description": "convert C++ code to TypeScript, not necessarily error",
+  "main": "index.js",
+  "directories": {
+    "src": "src",
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/infancy/cpp2ts.git"
+  },
+  "keywords": [
+    "C++",
+    "TypeScript",
+    "compiler"
+  ],
+  "author": "infancy",
+  "license": "BSD-2-Clause",
+  "bugs": {
+    "url": "https://github.com/infancy/cpp2ts/issues"
+  },
+  "homepage": "https://github.com/infancy/cpp2ts#readme",
+  "scripts": {
+    "lexer": "antlr4ts src/antlr4ts/CPP14Lexer.g4",
+    "parser": "antlr4ts -visitor src/antlr4ts/CPP14Parser.g4",
+
+    "start": "snowpack dev",
+    "test": "",
+    "build": "snowpack build"
+  },
+  "devDependencies": {
+    "@snowpack/plugin-typescript": "^1.2.1",
+    "antlr4ts-cli": "^0.5.0-alpha.4",
+    "snowpack": "^3.3.3",
+    "typescript": "^4.2.4"
+  },
+  "dependencies": {
+    "antlr4ts": "^0.5.0-alpha.4"
+  }
+}

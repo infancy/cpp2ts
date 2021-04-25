@@ -1,0 +1,19 @@
+{
+  "imports": {
+    "antlr4ts": "./antlr4ts.js",
+    "antlr4ts/FailedPredicateException": "./antlr4ts/FailedPredicateException.js",
+    "antlr4ts/Lexer": "./antlr4ts/Lexer.js",
+    "antlr4ts/NoViableAltException": "./antlr4ts/NoViableAltException.js",
+    "antlr4ts/Parser": "./antlr4ts/Parser.js",
+    "antlr4ts/ParserRuleContext": "./antlr4ts/ParserRuleContext.js",
+    "antlr4ts/RecognitionException": "./antlr4ts/RecognitionException.js",
+    "antlr4ts/Token": "./antlr4ts/Token.js",
+    "antlr4ts/VocabularyImpl": "./antlr4ts/VocabularyImpl.js",
+    "antlr4ts/atn/ATN": "./antlr4ts/atn/ATN.js",
+    "antlr4ts/atn/ATNDeserializer": "./antlr4ts/atn/ATNDeserializer.js",
+    "antlr4ts/atn/LexerATNSimulator": "./antlr4ts/atn/LexerATNSimulator.js",
+    "antlr4ts/atn/ParserATNSimulator": "./antlr4ts/atn/ParserATNSimulator.js",
+    "antlr4ts/misc/Utils": "./antlr4ts/misc/Utils.js",
+    "antlr4ts/tree/ParseTreeWalker": "./antlr4ts/tree/ParseTreeWalker.js"
+  }
+}
