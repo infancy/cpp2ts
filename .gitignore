@@ -5,13 +5,4 @@ node_modules/
 test
 
 build/.git
-build/_snowpack
-build/test
 build/.gitignore
-build/internal.md
-build/package-lock.json
-build/package.json
-build/readme.md
-build/snowpack.config.js
-build/tsconfig.json
-/snowpack.config.js
