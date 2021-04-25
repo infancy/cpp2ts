@@ -4,10 +4,11 @@
  */
 
 //import * as antlr4ts from "../node_modules/antlr4ts/index"
-import antlr4ts from "./antlr4ts"
-import {CommonTokenStream} from "./antlr4ts"
-//import {tree} from "./antlr4"
-//import {TerminalNode, ParseTreeWalker} from "antlr4ts/tree"
+import * as antlr4ts from "antlr4ts"
+import {CommonTokenStream} from "antlr4ts"
+import { ParseTreeWalker } from "antlr4ts/tree/ParseTreeWalker"
+//import {tree} from "antlr4"
+//import {TerminalNode, ParseTreeWalker} from "./antlr4ts/tree"
 //import {TokenStream} from "antlr4ts/TokenStream"
 
 import {CPP14Lexer} from './CPP14Lexer'
@@ -82,7 +83,7 @@ export class CPP2TSConverter implements CPP14ParserListener {
 
 export class CPP2TS {
     static convert(input:string):string {
-        const inputStream = new antlr4ts.InputStream(input)
+        const inputStream = new antlr4ts.ANTLRInputStream(input)
         const lexer = new CPP14Lexer(inputStream)
 
         const tokenStream = new CommonTokenStream(lexer)
@@ -92,7 +93,7 @@ export class CPP2TS {
 
         //const converter = new CPP2TSConverter(parser)
         const converter = new CPP2TSConverter()
-        antlr4ts.tree.ParseTreeWalker.DEFAULT.walk(converter as CPP14ParserListener, tree)
+        ParseTreeWalker.DEFAULT.walk(converter as CPP14ParserListener, tree)
 
         return converter.getResult()
     }

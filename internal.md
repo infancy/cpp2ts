@@ -19,3 +19,11 @@ use `npx tsc -b` to compile and check if there have errors
 # misc
 
 * https://github.com/flyover/box2d.ts/tree/master/build
+
+# compile
+
+antlr4ts by npm or antlr4ts.js by skypack has error
+
+can't use antlr by npm
+
+so finally use antlr.js by skypack  

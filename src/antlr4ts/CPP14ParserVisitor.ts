@@ -1,4 +1,4 @@
-// Generated from antlr/CPP14Parser.g4 by ANTLR 4.9.0-SNAPSHOT
+// Generated from src/antlr4ts/CPP14Parser.g4 by ANTLR 4.9.0-SNAPSHOT
 
 
 import { ParseTreeVisitor } from "antlr4ts/tree/ParseTreeVisitor";

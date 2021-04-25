@@ -1,4 +1,5 @@
 //import * as cts from './src/index'
+//import * as cts from './src/antlr4ts/index'
 import * as cts from './src/antlr4/index'
 
 const cppSrcTextArea = document.getElementById('cpp-src') as HTMLTextAreaElement;

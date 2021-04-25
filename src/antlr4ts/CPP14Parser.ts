@@ -1,4 +1,4 @@
-// Generated from antlr/CPP14Parser.g4 by ANTLR 4.9.0-SNAPSHOT
+// Generated from src/antlr4ts/CPP14Parser.g4 by ANTLR 4.9.0-SNAPSHOT
 
 
 import { ATN } from "antlr4ts/atn/ATN";
@@ -9549,7 +9549,7 @@ export class CPP14Parser extends Parser {
 			this.match(CPP14Parser.Assign);
 			this.state = 1783;
 			_localctx._val = this.match(CPP14Parser.OctalLiteral);
-			if((_localctx._val != null ? _localctx._val.text : undefined) === "0") throw new Error(_localctx._val.text);
+			if((_localctx._val != null ? _localctx._val.text : undefined) !== "0") throw new Error((_localctx._val != null ? _localctx._val.text : undefined));
 					
 			}
 		}
