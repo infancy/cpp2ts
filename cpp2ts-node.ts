@@ -1,0 +1,1 @@
+import * as cts from './src/antlr4ts/index'

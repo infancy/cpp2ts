@@ -7,11 +7,12 @@
 import antlr4 from "./antlr4"
 import {InputStream, CommonTokenStream} from "./antlr4"
 //import {tree} from "./antlr4"
-//import {TerminalNode, ParseTreeWalker} from "antlr4ts/tree"
+import {TerminalNode} from "antlr4ts/tree"
 //import {TokenStream} from "antlr4ts/TokenStream"
 
 import CPP14Lexer from './CPP14Lexer'
 
+import * as ctx from '../antlr4ts/CPP14Parser'
 import CPP14Parser from './CPP14Parser'
 import CPP14ParserListener from './CPP14ParserListener'
 //import {CPP14ParserVisitor} from './CPP14ParserVisitor'
@@ -65,8 +66,31 @@ export class CPP2TSConverter extends CPP14ParserListener {
     /*functionDefinition:
 	attributeSpecifierSeq? declSpecifierSeq? declarator virtualSpecifierSeq? functionBody;
     */
-    enterFunctionDefinition(ctx:any){
+    enterFunctionDefinition(ctx:ctx.FunctionDefinitionContext){
         this._ts += "Function\n"
+        let declarator = ctx.declarator() as unknown as ctx.DeclaratorContext
+        if(declarator){
+            let pointerDeclarator = declarator.pointerDeclarator() as unknown as ctx.PointerDeclaratorContext
+            if(pointerDeclarator){
+                let no = pointerDeclarator.noPointerDeclarator() as unknown as ctx.NoPointerDeclaratorContext
+                if(no){
+                    let declaratorid = no.declaratorid() as unknown as ctx.DeclaratoridContext
+                    if(declaratorid){
+                        let idExpression = declaratorid.idExpression() as unknown as ctx.IdExpressionContext
+                        if(idExpression){
+                            let unqualifiedId = idExpression.unqualifiedId() as unknown as ctx.UnqualifiedIdContext
+                            if(unqualifiedId){
+                                let identifier = unqualifiedId.Identifier() as unknown as TerminalNode
+                                if(identifier){
+                                    this._ts += identifier._symbol.text
+                                }
+                            }
+                        }
+                        
+                    }
+                }
+            }
+        }
     }
 
     enterFunctionBody(ctx:any){
