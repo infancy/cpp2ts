@@ -3,6 +3,7 @@
  * https://github.com/antlr/antlr4/blob/master/doc/javascript-target.md
  */
 
+import {config} from "../../cpp2ts.config"
 //import * as antlr4ts from "../node_modules/antlr4ts/index"
 import * as antlr4ts from "antlr4ts"
 import {CommonTokenStream} from "antlr4ts"
@@ -64,11 +65,35 @@ export class CPP2TSConverter implements CPP14ParserListener {
     //enterParameterDeclarationList(ctx:ctx.ParameterDeclarationListContext){}
     //enterParameterDeclaration(ctx:ctx.ParameterDeclarationContext){}
 
+
+
+    getSimpleTypeSpecifier(){
+
+    }
+
     /*functionDefinition:
 	attributeSpecifierSeq? declSpecifierSeq? declarator virtualSpecifierSeq? functionBody;
     */
     enterFunctionDefinition(ctx:ctx.FunctionDefinitionContext){
-        this._ts += "Function\n"
+        //let ts = this._ts
+
+        let _export = config.exportAll ? "export" : ""
+
+        let _funcName = ""
+
+        let _retType = ""
+        const decls = ctx.declSpecifierSeq()?.declSpecifier()
+        if(decls && decls[0]){
+            _retType = decls[0].text ?? "any"
+        }
+
+        this._ts += `${_export} function ${_funcName}(): ${_retType} {`
+
+        //this._ts += ctx.declSpecifierSeq()?.declSpecifier()[0].typeSpecifier()?.
+        //   trailingTypeSpecifier()?.simpleTypeSpecifier()?.text ?? "any"
+    }
+    exitFunctionDefinition(ctx: ctx.FunctionDefinitionContext){
+        this._ts += "\n}\n"
     }
 
     enterFunctionBody(ctx:ctx.FunctionBodyContext){

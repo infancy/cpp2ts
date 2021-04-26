@@ -3,6 +3,7 @@
  * https://github.com/antlr/antlr4/blob/master/doc/javascript-target.md
  */
 
+import {config} from "../../cpp2ts.config"
 //import * as antlr4ts from "../node_modules/antlr4ts/index"
 import antlr4 from "./antlr4"
 import {InputStream, CommonTokenStream} from "./antlr4"
@@ -66,32 +67,29 @@ export class CPP2TSConverter extends CPP14ParserListener {
     /*functionDefinition:
 	attributeSpecifierSeq? declSpecifierSeq? declarator virtualSpecifierSeq? functionBody;
     */
-    enterFunctionDefinition(ctx:ctx.FunctionDefinitionContext){
-        this._ts += "Function\n"
-        let declarator = ctx.declarator() as unknown as ctx.DeclaratorContext
-        if(declarator){
-            let pointerDeclarator = declarator.pointerDeclarator() as unknown as ctx.PointerDeclaratorContext
-            if(pointerDeclarator){
-                let no = pointerDeclarator.noPointerDeclarator() as unknown as ctx.NoPointerDeclaratorContext
-                if(no){
-                    let declaratorid = no.declaratorid() as unknown as ctx.DeclaratoridContext
-                    if(declaratorid){
-                        let idExpression = declaratorid.idExpression() as unknown as ctx.IdExpressionContext
-                        if(idExpression){
-                            let unqualifiedId = idExpression.unqualifiedId() as unknown as ctx.UnqualifiedIdContext
-                            if(unqualifiedId){
-                                let identifier = unqualifiedId.Identifier() as unknown as TerminalNode
-                                if(identifier){
-                                    this._ts += identifier._symbol.text
-                                }
-                            }
-                        }
-                        
-                    }
-                }
-            }
+   enterFunctionDefinition(ctx:ctx.FunctionDefinitionContext){
+        //let ts = this._ts
+
+        let _export = config.exportAll ? "export" : ""
+
+        let _funcName = ""
+
+        let _retType = ""
+        const decls = ctx.declSpecifierSeq()?.declSpecifier()
+        if(decls && decls[0]){
+            _retType = decls[0].text ?? "any"
         }
+
+        this._ts += `${_export} function ${_funcName}(): ${_retType} {`
+
+        //this._ts += ctx.declSpecifierSeq()?.declSpecifier()[0].typeSpecifier()?.
+        //   trailingTypeSpecifier()?.simpleTypeSpecifier()?.text ?? "any"
     }
+    exitFunctionDefinition(ctx: ctx.FunctionDefinitionContext){
+        this._ts += "\n}\n"
+    }
+
+
 
     enterFunctionBody(ctx:any){
 
