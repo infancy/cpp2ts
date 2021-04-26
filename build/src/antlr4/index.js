@@ -11,15 +11,37 @@ export class CPP2TSConverter extends CPP14ParserListener {
   getResult() {
     return this._ts;
   }
-  enterClassSpecifier(ctx) {
+  enterClassSpecifier(ctx2) {
     this._ts += "Class\n";
   }
-  enterFunctionDefinition(ctx) {
+  enterFunctionDefinition(ctx2) {
     this._ts += "Function\n";
+    let declarator = ctx2.declarator();
+    if (declarator) {
+      let pointerDeclarator = declarator.pointerDeclarator();
+      if (pointerDeclarator) {
+        let no = pointerDeclarator.noPointerDeclarator();
+        if (no) {
+          let declaratorid = no.declaratorid();
+          if (declaratorid) {
+            let idExpression = declaratorid.idExpression();
+            if (idExpression) {
+              let unqualifiedId = idExpression.unqualifiedId();
+              if (unqualifiedId) {
+                let identifier = unqualifiedId.Identifier();
+                if (identifier) {
+                  this._ts += identifier._symbol.text;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
   }
-  enterFunctionBody(ctx) {
+  enterFunctionBody(ctx2) {
   }
-  enterExpression(ctx) {
+  enterExpression(ctx2) {
     this._ts += "Hello\n";
   }
 }

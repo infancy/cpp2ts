@@ -6,6 +6,10 @@ module.exports = {
   mount: {
     /* ... */
   },
+  exclude: [
+    "**/java/**/*",
+    "**/node_modules/**/*",
+  ],
   plugins: [
     '@snowpack/plugin-typescript',
   ],
