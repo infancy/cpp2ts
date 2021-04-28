@@ -20685,7 +20685,15 @@ export class TheOperatorContext extends ParserRuleContext {
 export class LiteralContext extends ParserRuleContext {
 	public IntegerLiteral(): TerminalNode | undefined { return this.tryGetToken(CPP14Parser.IntegerLiteral, 0); }
 	public CharacterLiteral(): TerminalNode | undefined { return this.tryGetToken(CPP14Parser.CharacterLiteral, 0); }
-	public FloatingLiteral(): TerminalNode | undefined { return this.tryGetToken(CPP14Parser.FloatingLiteral, 0); }
+	public FloatingLiteral(): TerminalNode | undefined { 
+		let term = this.tryGetToken(CPP14Parser.FloatingLiteral, 0);
+		let text = term?.text ?? ""
+
+		if(text[text.length - 1] === "f") text = text.substr(0, text.length - 1)
+		if(text[text.length - 1] === ".") text = text.substr(0, text.length - 1)
+
+		return term
+	}
 	public StringLiteral(): TerminalNode | undefined { return this.tryGetToken(CPP14Parser.StringLiteral, 0); }
 	public BooleanLiteral(): TerminalNode | undefined { return this.tryGetToken(CPP14Parser.BooleanLiteral, 0); }
 	public PointerLiteral(): TerminalNode | undefined { return this.tryGetToken(CPP14Parser.PointerLiteral, 0); }

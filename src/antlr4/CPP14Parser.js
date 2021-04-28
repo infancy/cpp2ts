@@ -11461,6 +11461,9 @@ export default class CPP14Parser extends antlr4.Parser {
 	    } finally {
 	        this.exitRule();
 	    }
+
+
+
 	    return localctx;
 	}
 
@@ -21608,7 +21611,14 @@ class LiteralContext extends antlr4.ParserRuleContext {
 	};
 
 	FloatingLiteral() {
-	    return this.getToken(CPP14Parser.FloatingLiteral, 0);
+		let term = this.tryGetToken(CPP14Parser.FloatingLiteral, 0);
+		let text = term?.text ?? ""
+
+		if(text[text.length - 1] === "f") text = text.substr(0, text.length - 1)
+		if(text[text.length - 1] === ".") text = text.substr(0, text.length - 1)
+		term.text = text
+		
+		return term
 	};
 
 	StringLiteral() {

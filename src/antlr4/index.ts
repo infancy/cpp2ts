@@ -58,47 +58,142 @@ export class CPP2TSConverter extends CPP14ParserListener {
 
     //enterClassName(ctx:CPP14Parser.ClassNameContext){}
 
+    convertType(type: string){
+        if(type === "float"){
+            return "number"
+        }else if(type === "int" || type === "uint"){
+            return "bigint"
+        }
 
+        return type
+    }
 
-    //enterParameterDeclarationClause(ctx:CPP14Parser.ParameterDeclarationClauseContext){}
-    //enterParameterDeclarationList(ctx:CPP14Parser.ParameterDeclarationListContext){}
-    //enterParameterDeclaration(ctx:CPP14Parser.ParameterDeclarationContext){}
+    getDeclSpecifierSeq(ctx: ctx.DeclSpecifierSeqContext | undefined){
+        if(ctx){
+            let declSpecifiers = ctx.declSpecifier()
+            let _type = declSpecifiers[declSpecifiers.length - 1].getText()
+            _type = this.convertType(_type)
+    
+            return _type
+        }
 
-    /*functionDefinition:
-	attributeSpecifierSeq? declSpecifierSeq? declarator virtualSpecifierSeq? functionBody;
-    */
-   enterFunctionDefinition(ctx:ctx.FunctionDefinitionContext){
+        return "any"
+    }
+
+    getParamterDeclaration(ctx: ctx.ParameterDeclarationContext){
+        let _type = this.getDeclSpecifierSeq(ctx.declSpecifierSeq())
+        
+        //let _pointerOp = ctx.declarator()?.pointerDeclarator()?.pointerOperator().getText()
+        let _name = ctx.declarator()?.pointerDeclarator()?.noPointerDeclarator().getText()
+
+        return `${_name}: ${_type}`
+    }
+
+    getParameterDeclarationClause(ctx: ctx.ParameterDeclarationClauseContext | undefined){
+        let list = ctx?.parameterDeclarationList().parameterDeclaration()
+
+        let ret = ""
+        for(let decl of list ?? []){
+            ret += this.getParamterDeclaration(decl)
+            ret += ", "
+        }
+        return ret.substr(0, ret.length - 2)
+    }
+
+    enterFunctionDefinition(ctx:ctx.FunctionDefinitionContext){
         //let ts = this._ts
 
         let _export = config.exportAll ? "export" : ""
 
-        let _funcName = ""
+        let _funcDecl = ctx.declarator().pointerDeclarator()?.noPointerDeclarator()
+        let _funcName = _funcDecl?.noPointerDeclarator()?.getText()
+        let _parasList = this.getParameterDeclarationClause(_funcDecl?.parametersAndQualifiers()?.parameterDeclarationClause())
+        
+        let _retType = ctx.declSpecifierSeq()?.getText()    
+        _retType = this.convertType(_retType)
 
-        let _retType = ""
-        const decls = ctx.declSpecifierSeq()?.declSpecifier()
-        if(decls && decls[0]){
-            _retType = decls[0].text ?? "any"
-        }
-
-        this._ts += `${_export} function ${_funcName}(): ${_retType} {`
-
-        //this._ts += ctx.declSpecifierSeq()?.declSpecifier()[0].typeSpecifier()?.
-        //   trailingTypeSpecifier()?.simpleTypeSpecifier()?.text ?? "any"
+        this._ts += `${_export} function ${_funcName}(${_parasList}): ${_retType} {\n`
     }
     exitFunctionDefinition(ctx: ctx.FunctionDefinitionContext){
-        this._ts += "\n}\n"
+        this._ts += "}\n\n"
     }
 
 
 
+
+    /*
+    enterJumpStatement(ctx: ctx.JumpStatementContext){
+
+        let _jump = ""
+        if(ctx.Break()) _jump = "break"
+        else if(ctx.Continue()) _jump = "continue"
+        else if(ctx.Return()) _jump = "return"
+
+        this._ts += `${_jump} ${ctx.expression()?.getText()}`
+
+
+        this._ts += ctx.getText()
+    }
+    */
+    getDeclarationStatement(ctx: ctx.DeclarationStatementContext){
+        let simpleDecl = ctx.blockDeclaration().simpleDeclaration()
+        if(simpleDecl){
+            let _type = this.getDeclSpecifierSeq(simpleDecl.declSpecifierSeq())
+
+            let initDecl = simpleDecl.initDeclaratorList()?.initDeclarator()[0]
+            let _name = initDecl?.declarator().getText()
+            let _init = initDecl?.initializer()?.getText() ?? "= 0"
+
+            return `let ${_name}:${_type} ${_init}\n`
+        }
+    }
+    enterStatement(ctx: ctx.StatementContext){
+        if(ctx.parentCtx?.parentCtx?.parentCtx?.ruleIndex !== CPP14Parser.RULE_functionBody)
+            return
+
+        {
+            let decl = ctx.declarationStatement()
+            if(decl){
+                this._ts += this.getDeclarationStatement(decl)
+                return
+            }
+        }
+
+        /*
+        {
+            let retDecl = ctx.jumpStatement()
+            if(retDecl){
+                this._ts += retDecl.getText()
+                //this._ts += `return ${retDecl.expression()?.getText()}`
+                return
+            }
+        }
+
+        {
+            let selecDecl = ctx.selectionStatement()
+            if(selecDecl){
+                this._ts += selecDecl.getText()
+                return
+            }
+        }
+        */
+
+        this._ts += ctx.getText()
+    }
+    exitStatement(ctx: ctx.StatementContext){
+        this._ts += "\n"
+    }
+
+    /*
     enterFunctionBody(ctx:any){
 
     }
 
 
     enterExpression(ctx:any) {
-        this._ts += "Hello\n"
+        //this._ts += "Hello\n"
     }
+    */
 }
 
 export class CPP2TS {
