@@ -18743,7 +18743,13 @@ export class LiteralContext extends ParserRuleContext {
     return this.tryGetToken(CPP14Parser.CharacterLiteral, 0);
   }
   FloatingLiteral() {
-    return this.tryGetToken(CPP14Parser.FloatingLiteral, 0);
+    let term = this.tryGetToken(CPP14Parser.FloatingLiteral, 0);
+    let text = term?.text ?? "";
+    if (text[text.length - 1] === "f")
+      text = text.substr(0, text.length - 1);
+    if (text[text.length - 1] === ".")
+      text = text.substr(0, text.length - 1);
+    return term;
   }
   StringLiteral() {
     return this.tryGetToken(CPP14Parser.StringLiteral, 0);

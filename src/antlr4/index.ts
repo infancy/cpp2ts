@@ -1,3 +1,4 @@
+//@ts-nocheck
 /** readme
  * https://github.com/tunnelvisionlabs/antlr4ts
  * https://github.com/antlr/antlr4/blob/master/doc/javascript-target.md
@@ -17,6 +18,9 @@ import * as ctx from '../antlr4ts/CPP14Parser'
 import CPP14Parser from './CPP14Parser'
 import CPP14ParserListener from './CPP14ParserListener'
 //import {CPP14ParserVisitor} from './CPP14ParserVisitor'
+
+export class CPP2TSModifier extends CPP14ParserListener {
+}
 
 export class CPP2TSConverter extends CPP14ParserListener {
     private _ts:string = "";
@@ -141,7 +145,11 @@ export class CPP2TSConverter extends CPP14ParserListener {
             let _type = this.getDeclSpecifierSeq(simpleDecl.declSpecifierSeq())
 
             let initDecl = simpleDecl.initDeclaratorList()?.initDeclarator()[0]
+            
             let _name = initDecl?.declarator().getText()
+            if(_name === "Vec3f" || _name === "Vec3f" || _name === "Vec3f" || _name === "Vec3f")
+                _name = "new " + _name
+
             let _init = initDecl?.initializer()?.getText() ?? "= 0"
 
             return `let ${_name}:${_type} ${_init}\n`
@@ -206,10 +214,16 @@ export class CPP2TS {
         //parser.buildParseTree = true
         const tree = parser.translationUnit()
 
-        //const converter = new CPP2TSConverter(parser)
+        // travel multi times
+        //const modifier = new CPP2TSModifier()
+        //antlr4.tree.ParseTreeWalker.DEFAULT.walk(modifier as CPP14ParserListener, tree)
+
         const converter = new CPP2TSConverter()
         antlr4.tree.ParseTreeWalker.DEFAULT.walk(converter as CPP14ParserListener, tree)
 
-        return converter.getResult()
+        let raw = converter.getResult()
+        raw = raw.replaceAll("std :: ", "Math.")
+        raw = raw.replaceAll(" . ", ".")
+        return raw
     }
 }

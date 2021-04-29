@@ -1,3 +1,4 @@
+import {config} from "../../cpp2ts.config.js";
 import * as antlr4ts from "../../_snowpack/pkg/antlr4ts.js";
 import {CommonTokenStream} from "../../_snowpack/pkg/antlr4ts.js";
 import {ParseTreeWalker} from "../../_snowpack/pkg/antlr4ts/tree/ParseTreeWalker.js";
@@ -13,8 +14,20 @@ export class CPP2TSConverter {
   enterClassSpecifier(ctx2) {
     this._ts += "Class\n";
   }
+  getSimpleTypeSpecifier() {
+  }
   enterFunctionDefinition(ctx2) {
-    this._ts += "Function\n";
+    let _export = config.exportAll ? "export" : "";
+    let _funcName = "";
+    let _retType = "";
+    const decls = ctx2.declSpecifierSeq()?.declSpecifier();
+    if (decls && decls[0]) {
+      _retType = decls[0].text ?? "any";
+    }
+    this._ts += `${_export} function ${_funcName}(): ${_retType} {`;
+  }
+  exitFunctionDefinition(ctx2) {
+    this._ts += "\n}\n";
   }
   enterFunctionBody(ctx2) {
   }

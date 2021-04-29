@@ -1590,7 +1590,28 @@ class TerminalNodeImpl extends TerminalNode {
     return visitor.visitTerminal(this);
   }
   getText() {
-    return this.symbol.text;
+    let text = this.symbol.text
+
+    let ch1 = text[text.length - 1]
+    if(ch1 === "f"){
+      let ch2 = text[text.length - 2]
+
+      if(ch2 === "."){
+        text = text.substr(0, text.length - 2)
+      }else if(ch2 >= "0" && ch2 <= "9"){
+        if(text.length < 3){
+          text = text.substr(0, text.length - 1)
+        }
+        else{
+          let ch3 = text[text.length - 3]
+          if(ch3 >= "0" && ch3 <= "9"){
+            text = text.substr(0, text.length - 1)
+        }
+        }
+      }
+    }
+
+    return text;
   }
   toString() {
     if (this.symbol.type === Token$3.EOF) {
@@ -1790,7 +1811,7 @@ class RuleContext extends RuleNode$2 {
     } else {
       return this.children.map(function(child) {
         return child.getText();
-      }).join("");
+      }).join(" ");
     }
   }
   getAltNumber() {
