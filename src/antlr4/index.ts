@@ -20,6 +20,13 @@ import CPP14ParserListener from './CPP14ParserListener'
 //import {CPP14ParserVisitor} from './CPP14ParserVisitor'
 
 export class CPP2TSModifier extends CPP14ParserListener {
+
+    enterMemberdeclaration(ctx: ctx.MemberdeclarationContext){
+        let memDecl = ctx.memberDeclaratorList()
+        if(memDecl){
+
+        }
+    }
 }
 
 export class CPP2TSConverter extends CPP14ParserListener {
@@ -56,18 +63,17 @@ export class CPP2TSConverter extends CPP14ParserListener {
     }
     */
 
-    enterClassSpecifier(ctx:any){
-        this._ts += "Class\n"
-    }
-
-    //enterClassName(ctx:CPP14Parser.ClassNameContext){}
-
     convertType(type: string){
+        if(type === "float" || type === "int" || type === "uint"){
+            return "number"
+        }
+        /*
         if(type === "float"){
             return "number"
         }else if(type === "int" || type === "uint"){
             return "bigint"
         }
+        */
 
         return type
     }
@@ -107,6 +113,9 @@ export class CPP2TSConverter extends CPP14ParserListener {
     enterFunctionDefinition(ctx:ctx.FunctionDefinitionContext){
         //let ts = this._ts
 
+        if(ctx.parentCtx?.ruleIndex === CPP14Parser.RULE_memberdeclaration)
+            return
+
         let _export = config.exportAll ? "export" : ""
 
         let _funcDecl = ctx.declarator().pointerDeclarator()?.noPointerDeclarator()
@@ -119,6 +128,9 @@ export class CPP2TSConverter extends CPP14ParserListener {
         this._ts += `${_export} function ${_funcName}(${_parasList}): ${_retType} {\n`
     }
     exitFunctionDefinition(ctx: ctx.FunctionDefinitionContext){
+        if(ctx.parentCtx?.ruleIndex === CPP14Parser.RULE_memberdeclaration)
+            return
+
         this._ts += "}\n\n"
     }
 
@@ -139,6 +151,8 @@ export class CPP2TSConverter extends CPP14ParserListener {
         this._ts += ctx.getText()
     }
     */
+    
+    // int x; => let x:bigint;
     getDeclarationStatement(ctx: ctx.DeclarationStatementContext){
         let simpleDecl = ctx.blockDeclaration().simpleDeclaration()
         if(simpleDecl){
@@ -147,9 +161,10 @@ export class CPP2TSConverter extends CPP14ParserListener {
             let initDecl = simpleDecl.initDeclaratorList()?.initDeclarator()[0]
             
             let _name = initDecl?.declarator().getText()
-            if(_name === "Vec3f" || _name === "Vec3f" || _name === "Vec3f" || _name === "Vec3f")
-                _name = "new " + _name
+            //if(_name !== "int" || _name !== "float")
+            //    _name = "new " + _name
 
+            // TODO: = new Vec3f
             let _init = initDecl?.initializer()?.getText() ?? "= 0"
 
             return `let ${_name}:${_type} ${_init}\n`
@@ -202,7 +217,87 @@ export class CPP2TSConverter extends CPP14ParserListener {
         //this._ts += "Hello\n"
     }
     */
+
+    //#region class 
+
+    tryGetMemberVariableDeclaration(ctx: ctx.MemberdeclarationContext){
+        let memName = ctx.memberDeclaratorList()
+        if(memName){
+            let _type = this.getDeclSpecifierSeq(ctx.declSpecifierSeq())
+
+            // let _name = "    _" + memName.getText()
+            this.memberVars.push(memName.getText())
+            let _name = "    " + memName.getText()
+
+            return `${_name}: ${_type};\n`
+        }
+        return ""
+    }
+
+    classHead: string = ""
+    memberVars: string[] = []
+    memberFuncs: string[] = []
+    backupTS: string = ""
+    enterClassSpecifier(ctx: ctx.ClassSpecifierContext){
+        this.classHead = ""
+        this.memberVars = []
+        this.memberFuncs = []
+        
+        this.backupTS = this._ts
+        this._ts = ""
+
+        let _export = config.exportAll ? "export" : ""
+        let _className = ctx.classHead().classHeadName()?.getText()
+        this.classHead += `${_export} class ${_className} {\n`
+
+        let memSpecs = ctx.memberSpecification()?.memberdeclaration()
+        if(memSpecs){
+            for(let memDecl of memSpecs ?? []){
+                this.classHead += this.tryGetMemberVariableDeclaration(memDecl)
+            }
+            this.classHead += "\n"
+        }
+    }
+    exitClassSpecifier(ctx: ctx.ClassSpecifierContext){
+        for(let memVar of this.memberVars){
+            this._ts = this._ts.replaceAll(memVar, "this." + memVar)
+        }
+
+        for(let memFunc of this.memberFuncs){
+            this._ts = this._ts.replaceAll(memFunc, "this." + memFunc)
+        }
+
+        this._ts = this.backupTS + this.classHead + this._ts + "}\n\n"
+    }
+
+    // tryGetMemberFunctionDeclaration
+    enterMemberdeclaration(ctx: ctx.MemberdeclarationContext){
+        let memFunc = ctx.functionDefinition()
+        if(memFunc){
+            let _funcDecl = memFunc.declarator().pointerDeclarator()?.noPointerDeclarator()
+  
+            let _funcName = _funcDecl?.noPointerDeclarator()?.getText()
+            this.memberFuncs.push(_funcName)
+
+            let _parasList = this.getParameterDeclarationClause(_funcDecl?.parametersAndQualifiers()?.parameterDeclarationClause())
+            
+            let _retType = memFunc.declSpecifierSeq()?.getText()    
+            _retType = this.convertType(_retType)
+    
+            this._ts += `    ${_funcName}(${_parasList}): ${_retType} {\n`
+        }
+    }
+    exitMemberdeclaration(ctx: ctx.MemberdeclarationContext){
+        let memFunc = ctx.functionDefinition()
+        if(memFunc){
+            this._ts += `    }\n`
+        }
+    }
+
+    //#endregion
 }
+
+// TODO: Dot(a, b) => a.dot(b)
 
 export class CPP2TS {
     static convert(input:string):string {
@@ -222,8 +317,14 @@ export class CPP2TS {
         antlr4.tree.ParseTreeWalker.DEFAULT.walk(converter as CPP14ParserListener, tree)
 
         let raw = converter.getResult()
+        // chain call
         raw = raw.replaceAll("std :: ", "Math.")
         raw = raw.replaceAll(" . ", ".")
+        //raw = raw.replaceAll("= 0", "")
+        raw = raw.replaceAll("virtual", "")
+        raw = raw.replaceAll("bool", "boolean")
+        raw = raw.replaceAll("const", "")
+        //raw = "\n output: \n\n" + raw
         return raw
     }
 }

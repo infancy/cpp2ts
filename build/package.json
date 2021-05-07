@@ -22,6 +22,7 @@
     "url": "https://github.com/infancy/cpp2ts/issues"
   },
   "homepage": "https://github.com/infancy/cpp2ts#readme",
+  "type": "module",
   "scripts": {
     "lexer": "antlr4ts src/antlr4ts/CPP14Lexer.g4",
     "parser": "antlr4ts -visitor src/antlr4ts/CPP14Parser.g4",
